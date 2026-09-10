@@ -1,5 +1,9 @@
 # Digital Clock - Same Size
 
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![KDE Plasma 6](https://img.shields.io/badge/KDE%20Plasma-6.x-1d99f3.svg)
+![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
+
 基于 KDE 官方 [DigitalClock](https://invent.kde.org/plasma/plasma-workspace) 小部件改造的 Plasma 数字时钟插件。
 
 本项目在保留原版「时间与日期等宽（Same size）」特性的基础上，进行了**中国本地化适配**，并新增了**事件显示开关**功能，更适合中文用户日常使用。
@@ -90,7 +94,9 @@ sudo cp -r com.github.alex47.samesizedigitalclock /usr/share/plasma/plasmoids/
 ## 文件结构
 
 ```
-├── metadata.json                  # 插件元数据（ID、名称、类别、许可证等）
+├── metadata.json                  # 插件元数据（ID、名称、版本、类别、许可证等）
+├── README.md                      # 项目说明
+├── CHANGELOG.md                   # 版本更新日志
 ├── screenshots/                   # README 示例截图
 └── contents/
     ├── config/
@@ -141,6 +147,7 @@ A：请确保系统语言为简体中文；`contents/locale/zh_CN/` 已内置翻
 - 原始作者：Martin Klapetek 及其他 KDE 贡献者（[plasma-workspace](https://invent.kde.org/plasma/plasma-workspace)）
 - 本项目仓库：[keqing1314/samesizedigitalclock-cn](https://github.com/keqing1314/samesizedigitalclock-cn)
 - Bug 报告与建议：[GitHub Issues](https://github.com/keqing1314/samesizedigitalclock-cn/issues)
+- 版本历史：[CHANGELOG.md](CHANGELOG.md) · [Releases](https://github.com/keqing1314/samesizedigitalclock-cn/releases)
 
 ## 贡献
 

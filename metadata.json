@@ -55,7 +55,7 @@
                 "Name[zh_TW]": "Martin Klapetek"
             }
         ],
-        "BugReportUrl": "https://github.com/alex47/PlasmaDigitalClockSameSize/issues",
+        "BugReportUrl": "https://github.com/keqing1314/samesizedigitalclock-cn/issues",
         "Category": "Date and Time",
         "Description": "Copy of the original KDE DigitalClock widget. The time and date is the same size.",
         "FormFactors": [
@@ -67,6 +67,7 @@
         "Id": "com.github.alex47.samesizedigitalclock",
         "License": "GPL-2.0+",
         "Name": "Digital Clock - Same size",
+        "Version": "1.0.0",
         "Website": "https://kde.org/plasma-desktop"
     },
     "X-KDE-ParentApp": "org.kde.plasmashell",
