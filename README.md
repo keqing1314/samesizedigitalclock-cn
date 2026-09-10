@@ -121,7 +121,8 @@ python3 scripts/package_plasmoid.py dist
 │       └── release.yml            # 推送 v* 标签时自动发布 Release
 ├── screenshots/                   # README 示例截图
 ├── scripts/
-│   └── package_plasmoid.py        # 打包 .plasmoid 安装包
+│   ├── package_plasmoid.py        # 打包 .plasmoid 安装包
+│   └── extract_changelog.py       # 按版本提取 CHANGELOG 发布说明
 └── contents/
     ├── config/
     │   ├── config.qml             # 配置分类模型

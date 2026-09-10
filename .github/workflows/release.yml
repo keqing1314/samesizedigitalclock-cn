@@ -20,11 +20,10 @@ jobs:
     name: 创建 GitHub Release
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
+      - name: 检出仓库
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ inputs.tag || github.ref }}
 
       - name: 解析标签与版本号
         id: vars
@@ -37,10 +36,22 @@ jobs:
           else
             TAG="$REF_NAME"
           fi
+          if ! git rev-parse --verify --quiet "refs/tags/$TAG" > /dev/null; then
+            echo "::error::标签 $TAG 不存在，请先将标签推送到仓库"
+            exit 1
+          fi
           VERSION="${TAG#v}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "标签: $TAG / 版本: $VERSION"
+
+      - name: 检出该标签的插件源码
+        env:
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          # 发布脚本本身取自默认分支，插件源码取自标签，避免旧标签缺少脚本导致失败
+          git checkout "$TAG" -- metadata.json contents CHANGELOG.md
+          echo "已载入 $TAG 的插件源码"
 
       - name: 从 CHANGELOG 提取发布说明
         env:
@@ -48,18 +59,13 @@ jobs:
           SERVER_URL: ${{ github.server_url }}
           REPOSITORY: ${{ github.repository }}
         run: |
-          awk -v ver="$VERSION" '
-            /^## \[/ {
-              if (found) exit
-              if (index($0, "[" ver "]")) { found = 1; next }
-            }
-            found { print }
-          ' CHANGELOG.md > release-notes.md
-          if [ ! -s release-notes.md ]; then
-            echo "> 本版本暂无更新日志，详见 [CHANGELOG.md]($SERVER_URL/$REPOSITORY/blob/main/CHANGELOG.md)。" > release-notes.md
+          if ! python3 scripts/extract_changelog.py "$VERSION" --output release-notes.md; then
+            printf '> 本版本暂无更新日志，详见 [CHANGELOG.md](%s/%s/blob/main/CHANGELOG.md)。\n' \
+              "$SERVER_URL" "$REPOSITORY" > release-notes.md
           fi
           printf '\n---\n\n### 📦 安装\n\n' >> release-notes.md
           printf '下载下方 `*.plasmoid` 文件，然后在 Plasma 桌面右键 →「添加小部件」→「从本地文件安装」即可。\n' >> release-notes.md
+          echo '--- 生成的发布说明 ---'
           cat release-notes.md
 
       - name: 打包 .plasmoid 安装包
