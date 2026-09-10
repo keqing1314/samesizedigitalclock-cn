@@ -1,0 +1,82 @@
+name: Release
+
+# 推送 v* 标签时自动发布；也可在 Actions 页面手动指定标签发布
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要发布的标签（例如 v1.0.0），需已推送到仓库"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 创建 GitHub Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+
+      - name: 解析标签与版本号
+        id: vars
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            TAG="$INPUT_TAG"
+          else
+            TAG="$REF_NAME"
+          fi
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "标签: $TAG / 版本: $VERSION"
+
+      - name: 从 CHANGELOG 提取发布说明
+        env:
+          VERSION: ${{ steps.vars.outputs.version }}
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          awk -v ver="$VERSION" '
+            /^## \[/ {
+              if (found) exit
+              if (index($0, "[" ver "]")) { found = 1; next }
+            }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "> 本版本暂无更新日志，详见 [CHANGELOG.md]($SERVER_URL/$REPOSITORY/blob/main/CHANGELOG.md)。" > release-notes.md
+          fi
+          printf '\n---\n\n### 📦 安装\n\n' >> release-notes.md
+          printf '下载下方 `*.plasmoid` 文件，然后在 Plasma 桌面右键 →「添加小部件」→「从本地文件安装」即可。\n' >> release-notes.md
+          cat release-notes.md
+
+      - name: 打包 .plasmoid 安装包
+        id: package
+        run: |
+          python3 scripts/package_plasmoid.py dist
+          ARTIFACT="$(ls dist/*.plasmoid | head -1)"
+          echo "artifact=$ARTIFACT" >> "$GITHUB_OUTPUT"
+          echo "已生成：$ARTIFACT"
+
+      - name: 创建 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.vars.outputs.tag }}
+          ARTIFACT: ${{ steps.package.outputs.artifact }}
+        run: |
+          gh release create "$TAG" \
+            --title "Digital Clock - Same Size $TAG" \
+            --notes-file release-notes.md \
+            "$ARTIFACT"

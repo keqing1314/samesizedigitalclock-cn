@@ -39,6 +39,16 @@
 
 ## 安装
 
+### 方式一：从 Release 安装（推荐）
+
+从 [Releases](https://github.com/keqing1314/samesizedigitalclock-cn/releases) 下载最新的 `*.plasmoid` 文件，然后：
+
+1. 在桌面或面板上右键 →「添加小部件」
+2. 点击「从本地文件安装小部件」
+3. 选择下载的 `.plasmoid` 文件即可
+
+### 方式二：从源码安装
+
 将整个插件目录复制到 Plasma 小部件目录，例如：
 
 ```bash
@@ -52,6 +62,14 @@ sudo cp -r com.github.alex47.samesizedigitalclock /usr/share/plasma/plasmoids/
 安装后在桌面或面板上右键 →「添加小部件」，搜索 **Digital Clock - Same Size** 即可使用。
 
 > **更新已安装版本**：重新复制目录覆盖后，执行 `kquitapp6 plasmashell && kstart plasmashell` 重启 Plasma 使更改生效。
+
+### 方式三：自行打包
+
+```bash
+python3 scripts/package_plasmoid.py dist
+```
+
+生成的 `dist/com.github.alex47.samesizedigitalclock-<版本>.plasmoid` 即可用于上述「从本地文件安装」。仅依赖 Python 3 标准库。
 
 ## 使用说明
 
@@ -97,7 +115,13 @@ sudo cp -r com.github.alex47.samesizedigitalclock /usr/share/plasma/plasmoids/
 ├── metadata.json                  # 插件元数据（ID、名称、版本、类别、许可证等）
 ├── README.md                      # 项目说明
 ├── CHANGELOG.md                   # 版本更新日志
+├── .github/
+│   ├── release.yml                # 自动生成 Release Notes 的分类规则
+│   └── workflows/
+│       └── release.yml            # 推送 v* 标签时自动发布 Release
 ├── screenshots/                   # README 示例截图
+├── scripts/
+│   └── package_plasmoid.py        # 打包 .plasmoid 安装包
 └── contents/
     ├── config/
     │   ├── config.qml             # 配置分类模型
@@ -148,6 +172,26 @@ A：请确保系统语言为简体中文；`contents/locale/zh_CN/` 已内置翻
 - 本项目仓库：[keqing1314/samesizedigitalclock-cn](https://github.com/keqing1314/samesizedigitalclock-cn)
 - Bug 报告与建议：[GitHub Issues](https://github.com/keqing1314/samesizedigitalclock-cn/issues)
 - 版本历史：[CHANGELOG.md](CHANGELOG.md) · [Releases](https://github.com/keqing1314/samesizedigitalclock-cn/releases)
+
+## 发布新版本
+
+1. 更新 `metadata.json` 中的 `KPlugin.Version`。
+2. 在 `CHANGELOG.md` 顶部新增对应条目，格式为 `## [x.y.z] - YYYY-MM-DD`。
+3. 提交并推送标签：
+
+   ```bash
+   git add -A
+   git commit -m "chore(release): 发布 vX.Y.Z"
+   git tag -a vX.Y.Z -m "vX.Y.Z"
+   git push origin main --follow-tags
+   ```
+
+4. GitHub Actions 会自动执行 [`release.yml`](.github/workflows/release.yml)：
+   - 从 `CHANGELOG.md` 提取该版本说明作为 Release 正文
+   - 打包 `.plasmoid` 安装包并作为附件上传
+   - 创建对应的 Release
+
+也可以在仓库 **Actions → Release → Run workflow** 中手动输入已存在的标签补发 Release。
 
 ## 贡献
 

@@ -1,0 +1,9 @@
+# 打包产物
+dist/
+*.plasmoid
+
+# 编辑器/系统临时文件
+__pycache__/
+*.py[cod]
+*~
+.DS_Store

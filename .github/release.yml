@@ -1,0 +1,23 @@
+# 配置 GitHub 自动生成 Release Notes 的分类规则
+# 当使用「Generate release notes」或 gh release create --generate-notes 时生效
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+    authors:
+      - dependabot
+  categories:
+    - title: ✨ 新增功能
+      labels:
+        - feature
+        - enhancement
+    - title: 🐛 问题修复
+      labels:
+        - bug
+        - fix
+    - title: 📄 文档
+      labels:
+        - documentation
+    - title: 🔧 其他变更
+      labels:
+        - "*"
